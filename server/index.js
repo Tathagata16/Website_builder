@@ -4,6 +4,7 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import authRouter from "./routes/auth.routes.js";
 import cookieParser from "cookie-parser";
+import connectDb from "./config/db.js";
 
 dotenv.config()
 
@@ -18,6 +19,6 @@ app.use(cookieParser());
 app.use("/api/auth",authRouter);
 
 app.listen(port,()=>{
-    console.log("server started")
+    console.log("server started on port "+port);
     connectDb()
 })
