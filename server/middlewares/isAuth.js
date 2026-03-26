@@ -1,0 +1,18 @@
+import User from '../models/user.model.js';
+import jwt from 'jsonwebtoken'
+const isAuth = async (req , res , next)=> {
+    try{
+        const token = req.cookies.token;
+        if(!token){
+            res.status(400).json({message: "token not found"});
+        }
+        
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        req.user = await User.findById(decoded.id);
+        next();
+    }catch(error){
+        return res.status(500).json({message: "error in is auth middleware"});
+    }
+}
+
+export default isAuth;
