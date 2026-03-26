@@ -60,7 +60,7 @@ function Home() {
           Take some time to describe your idea.AI will build the website for you.
         </motion.p>
 
-        <button className='px-10 py-4 rounded-xl bg-white text-black font-semibold hover:scale-105 transition mt-12'>Get Started</button>
+        <button className='px-10 py-4 rounded-xl bg-white text-black font-semibold hover:scale-105 transition mt-12' onClick={()=>setOpenLogin(true)}>Get Started</button>
       </section>
 
       {/*Card section */}
