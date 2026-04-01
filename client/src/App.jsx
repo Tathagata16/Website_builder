@@ -1,10 +1,12 @@
 import React from 'react'
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import Home from './pages/Home.jsx';
+import useGetCurrentUser from './hooks/useGetCurrentUser.jsx';
 
 export const serverUrl = "http://localhost:5000";
 
 function App() {
+  useGetCurrentUser();
   return (
     <BrowserRouter>
       <Routes>
