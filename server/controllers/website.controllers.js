@@ -1,4 +1,4 @@
-import { response } from 'express';
+
 import generateResponse from '../config/openRouter.js'
 import extractJson from '../utils/extractJson.js';
 import Website from '../models/website.model.js'
@@ -167,7 +167,7 @@ export const generateWebsite = async (req, res) => {
             return res.status(400).json({ message: "You have not enough credits to generate a website" });
         }
 
-        const finalPrompt = masterPrompt.replace("USER_PROMPT", prompt);
+        const finalPrompt = masterPrompt.replace("{USER_PROMPT}", prompt);
 
         let raw = "";
         let parsed = null;
@@ -183,8 +183,8 @@ export const generateWebsite = async (req, res) => {
         }
 
         if (!parsed.code) {
-            console.log("ai returned inavlid response in website controller");
-            return response.status(400).json({ message: "ai returned invalid response" });
+            console.log("ai returned invalid response in website controller");
+            return res.status(400).json({ message: "ai returned invalid response" });
         }
 
         const website = await Website.create({
@@ -215,7 +215,7 @@ export const generateWebsite = async (req, res) => {
 
 
     } catch (error) {
-        return res.status(500), json({ message: "generate website error", error });
+        return res.status(500).json({ message: "generate website error", error });
     }
 }
 
@@ -231,7 +231,7 @@ export const getWebsiteById = async (req, res) => {
         return res.status(200).json(website);
 
     } catch (error) {
-        return res.status(500), json({ message: "generate website by id error", error });
+        return res.status(500).json({ message: "generate website by id error", error });
     }
 }
 
@@ -256,7 +256,7 @@ export const changes = async (req, res) => {
         }
 
         if (user.credits < 25) {
-            return res.status(400).json({ message: "you have not enough credits to generate a webiste" });
+            return res.status(400).json({ message: "you have not enough credits to generate a website" });
         }
 
         const updatePrompt = `UPDATE THIS HTML WEBSITE.
@@ -276,19 +276,19 @@ RETURN RAW JSON ONLY:
         let raw = "";
         let parsed = "";
 
-        for(let i = 0; i < 2 && !parsed; i++){
-            raw = await generateResponse(prompt);
+        for (let i = 0; i < 2 && !parsed; i++) {
+            raw = await generateResponse(updatePrompt);
             parsed = await extractJson(raw);
 
-            if(!parsed){
+            if (!parsed) {
                 console.log("ai returned invalid response", raw);
-                return res.status(400).json({message: "ai returned invalid response"});
+                return res.status(400).json({ message: "ai returned invalid response" });
             }
         }
 
         website.conversation.push(
-            {role:"user", content: prompt},
-            {role: "ai", content:parsed.message}
+            { role: "user", content: prompt },
+            { role: "ai", content: parsed.message }
         )
 
         website.latestCode = parsed.code;
@@ -298,38 +298,38 @@ RETURN RAW JSON ONLY:
         await user.save();
 
         return res.status(200).json({
-            message:parsed.message,
-            code:parsed.code,
+            message: parsed.message,
+            code: parsed.code,
             remainingCredits: user.credits
         })
 
     } catch (error) {
-        return res.status(500), json({ message: "generate website by id error", error });
+        return res.status(500).json({ message: "generate website by id error", error });
     }
 }
 
 export const getWebsites = async (req, res) => {
-    try{
-        const websites = await Website.find({user: req.user._id});
+    try {
+        const websites = await Website.find({ user: req.user._id });
         return res.status(200).json(websites);
-    }catch(error){
+    } catch (error) {
         return res.status(500).json({ message: `get all websites error ${error}` })
     }
 }
 
-export const deploy = async (req, res)=>{
-    try{
+export const deploy = async (req, res) => {
+    try {
         const website = await Website.findOne({
             _id: req.params.id,
             user: req.user._id
         })
 
-        if(!website){
+        if (!website) {
             return res.status(400).json({ message: "website not found" })
         }
 
-        if(!website.slug){
-            website.slug = website.title.toLowerCase().replace(/[^a-z0-9]/g,"").slice(0,60) + website._id.toString().slice(-5);
+        if (!website.slug) {
+            website.slug = website.title.toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 60) + website._id.toString().slice(-5);
         }
 
         website.deployed = true;
@@ -339,24 +339,26 @@ export const deploy = async (req, res)=>{
         return res.status(200).json({
             url: website.deployedUrl
         });
-    }catch(error){
+    } catch (error) {
         return res.status(500).json({ message: `deploy website error ${error}` })
     }
 }
 
-export const getBySlug = async (req, res)=>{
-    try{
+export const getBySlug = async (req, res) => {
+    try {
         const website = await Website.findOne({
             slug: req.params.slug
-        })  
+        })
 
-        if(!website ){
+        if (!website) {
             return res.status(400).json({ message: "website not found" })
         };
 
-    }catch(error){
+        return res.status(200).json(website);
+
+    } catch (error) {
         return res.status(500).json({ message: `get website by slug error ${error}` })
-    }   
+    }
 }
 
 
