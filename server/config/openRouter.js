@@ -1,12 +1,15 @@
-const openRouterUrl = "https://openrouter.ai/api/v1/chat/completions"
-const openRouterApiKey = process.env.OPENROUTER_API_KEY;
-const model = "deepseek/deepseek-chat";
 
 const generateResponse = async (prompt) => {
+    const openRouterUrl = "https://openrouter.ai/api/v1/chat/completions"
+   
+    const model = "deepseek/deepseek-chat";
+    if (!process.env.OPENROUTER_API_KEY) {
+    throw new Error("OPENROUTER_API_KEY is missing from environment");
+}
     const res = await fetch(openRouterUrl, {
         method: 'POST',
         headers: {
-            Authorization: `Bearer ${openRouterApiKey}`,
+            Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
             
             'Content-Type': 'application/json',
         },
@@ -30,9 +33,11 @@ const generateResponse = async (prompt) => {
 
     if(!res.ok){
         const err = await res.text();
-        throw new Error("Open router error: " ,err);
+        throw new Error(`Open router error ${err}`);
     }
     const data = await res.json();
-    return data;
+    return data.choices[0].message.content;
 
 }
+
+export default generateResponse;
