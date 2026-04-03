@@ -177,12 +177,12 @@ export const generateWebsite = async (req, res) => {
             parsed = await extractJson(raw);
 
             if (!parsed) {
-                raw = await generateResponse(finalPrompt + "\n\nRETURN ONLY RAW JSON.");
+                raw = await generateResponse(finalPrompt + "\n\nSTRICT: RETURN ONLY VALID JSON. NO TEXT.");
                 parsed = await extractJson(raw);
             }
         }
 
-        if (!parsed.code) {
+        if (!parsed || !parsed.code) {
             console.log("ai returned invalid response in website controller");
             return res.status(400).json({ message: "ai returned invalid response" });
         }
@@ -215,6 +215,7 @@ export const generateWebsite = async (req, res) => {
 
 
     } catch (error) {
+        console.log(error);
         return res.status(500).json({ message: "generate website error", error });
     }
 }

@@ -1,5 +1,5 @@
 const extractJson = async (raw) => {
-    if (!raw) {
+    try{if (!raw) {
         return
     }
     const cleanText = raw.replace(/```json/gi, "").replace(/```/g, "")
@@ -12,7 +12,17 @@ const extractJson = async (raw) => {
 
     const jsonString = cleanText.slice(firstBrace,secondBrace+1);
 
-    return JSON.parse(jsonString);
+    try {
+            return JSON.parse(jsonString);
+        } catch (err) {
+            console.log("❌ JSON PARSE ERROR:", err.message);
+            console.log("❌ RAW JSON STRING:", jsonString);
+            return null;
+        }
+    }catch(err){
+        console.log("Error parsing JSON:", err);
+        return null;
+    }
 
 }
 
